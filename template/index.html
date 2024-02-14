@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css"
+    />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios@1.1.2/dist/axios.min.js"></script>
+
+    <title>CaptchAI Data Depot</title>
+    <style>
+      .vertical {
+        border-left: 4px solid #1f273a;
+      }
+    </style>
+  </head>
+
+  <body>
+    <article>
+      <nav>
+        <ul>
+          <li><h2>CaptchAI Data Depot</h2></li>
+        </ul>
+      </nav>
+    </article>
+
+    <main class="container">
+      <div>
+        <hr />
+        <hgroup>
+          <h1>Captcha Solver Training Dataset Collector</h1>
+          <hr />
+          <p>
+            This website is dedicated to gathering a comprehensive array of
+            datasets crucial for training machine learning models to effectively
+            solve captchas. My primary goal is to amass sufficient data to fuel
+            the development of accurate captcha-solving machine learning model.
+          </p>
+          <p>
+            <kbd>
+              >It's imperative to meticulously review inputs before submission,
+              as inaccuracies could adversely affect model training.</kbd
+            >
+          </p>
+        </hgroup>
+      </div>
+      <div>
+        <article class="grid">
+          <form
+            action="/"
+            id="solver-form"
+            name="solver-form"
+            method="POST"
+            enctype="multipart/form-data"
+          >
+            <fieldset>
+              <img
+                name="captcha-image"
+                id="captcha-image"
+                src="https://services.gst.gov.in//services/captcha"
+                alt="https://services.gst.gov.in//services/captcha"
+              />
+              <br /><br />
+              <input
+                id="captcha-input"
+                name="captcha-input"
+                placeholder="Enter Capcha Character"
+              />
+            </fieldset>
+
+            <input type="submit" value="Submit" />
+          </form>
+
+          <div class="vertical">
+            <br />
+            <hgroup style="padding: 20px">
+              <h2>Overall Progress</h2>
+              <hr />
+              <p id="progress-text">Loading...</p>
+            </hgroup>
+          </div>
+        </article>
+        <progress class="loading"></progress>
+      </div>
+    </main>
+  </body>
+  <script>
+    document.querySelector(".loading").hidden = true;
+    document
+      .getElementById("solver-form")
+      .addEventListener("submit", function (event) {
+        document.querySelector(".loading").hidden = false;
+        event.preventDefault();
+        var captchaImageSrc = document.getElementById("captcha-image").src;
+
+        var captchaInputValue = document.getElementById("captcha-input").value;
+        var formData = new FormData();
+        formData.append("captcha_image_src", captchaImageSrc);
+        formData.append("captcha_input_value", captchaInputValue);
+
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "/", true);
+        xhr.onload = function () {
+          // Handle response from server
+          document.getElementById("solver-form").reset();
+          location.reload();
+          document.querySelector(".loading").hidden = true;
+        };
+        xhr.send(formData);
+      });
+
+    const CHECK_INTERVAL = 3000;
+
+    const updateIndicator = (progress) => {
+      const progressText = document.getElementById("progress-text");
+      progressText.innerHTML = "";
+      progressText.innerHTML = "Completed gathering " + progress + " Capcha";
+    };
+
+    const checkProgress = async () => {
+      try {
+        const response = await axios.post("/get-progress");
+        const progress = response.data.progress;
+        updateIndicator(progress);
+      } catch (error) {
+        // Handle error
+        console.error(error);
+      }
+    };
+
+    function startPeriodicCheck() {
+      setInterval(checkProgress, CHECK_INTERVAL);
+    }
+
+    window.onload = () => {
+      startPeriodicCheck();
+    };
+  </script>
+</html>
