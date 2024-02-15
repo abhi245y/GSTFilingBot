@@ -59,16 +59,27 @@
           >
             <fieldset>
               <img
+                src="data:image/png;base64,{{ image_data }}"
                 name="captcha-image"
                 id="captcha-image"
-                src="https://services.gst.gov.in//services/captcha"
-                alt="https://services.gst.gov.in//services/captcha"
               />
               <br /><br />
+              <input
+                type="hidden"
+                name="image_id"
+                id="imageId"
+                value="{{ image_id }}"
+              />
               <input
                 id="captcha-input"
                 name="captcha-input"
                 placeholder="Enter Capcha Character"
+                type="text"
+                pattern="\d{6}"
+                title="Enter exactly 6 digits and that too numbers only"
+                data-tooltip="Enter exactly 6 digits and that too numbers only"
+                data-placement="bottom"
+                required
               />
             </fieldset>
 
@@ -95,11 +106,11 @@
       .addEventListener("submit", function (event) {
         document.querySelector(".loading").hidden = false;
         event.preventDefault();
-        var captchaImageSrc = document.getElementById("captcha-image").src;
+        var image_id = document.getElementById("imageId").value;
 
         var captchaInputValue = document.getElementById("captcha-input").value;
         var formData = new FormData();
-        formData.append("captcha_image_src", captchaImageSrc);
+        formData.append("image_id", image_id);
         formData.append("captcha_input_value", captchaInputValue);
 
         var xhr = new XMLHttpRequest();
@@ -113,7 +124,7 @@
         xhr.send(formData);
       });
 
-    const CHECK_INTERVAL = 3000;
+    const CHECK_INTERVAL = 10000;
 
     const updateIndicator = (progress) => {
       const progressText = document.getElementById("progress-text");
@@ -138,6 +149,7 @@
 
     window.onload = () => {
       startPeriodicCheck();
+      checkProgress();
     };
   </script>
 </html>
